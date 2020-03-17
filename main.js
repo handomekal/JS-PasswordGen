@@ -15,6 +15,7 @@ const randomFunc = {
     symbol: getRandomSymbol
 };
 
+// Generate event listen
 generateEL.addEventListener('click', () => {
     const length = +lengthEL.value;
     const hasLower = lowerCaseEL.checked;
@@ -22,8 +23,57 @@ generateEL.addEventListener('click', () => {
     const hasNumber = numbersEL.checked;
     const hasSymbol = symbolsEL.checked;
 
-    console.log(hasLower, hasUpper, hasNumber, hasSymbol);
-})
+    resultEL.innerText = generatePassword(hasLower, hasUpper, hasNumber, hasSymbol, length);
+});
+
+// copy password to clipboard
+clipboardEL.addEventListener('click', () => {
+    const textarea = document.createElement('textarea');
+    const password = resultEL.innerText;
+
+    if(!password) {
+        return;
+    }
+
+    textarea.value = password;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    alert('Password copied to clipboard!')
+});
+
+// Generate Password Function
+function generatePassword(lower, upper, number, symbol, length) {
+    //  Init password variable
+    let generatedPassword = '';
+    //  filter out unchecked types
+    const typesCount = lower + upper + number + symbol;
+    // console.log('typesCount', typesCount);
+
+    const typesArr = [{lower}, {upper}, {number}, {symbol}].filter(item => Object.values(item)[0]);
+    // console.log('typesArr', typesArr);
+
+    if(typesCount === 0) {
+        return '';
+    }
+    //  loop over length call generator function for each type
+
+    for(let i = 0; i < length; i+= typesCount) {
+        typesArr.forEach(type => {
+            const funcName = Object.keys(type)[0];
+            // console.log('funcName: ', funcName);
+
+            generatedPassword += randomFunc[funcName]();
+        });
+    }
+
+        //  add final password to the pw var and return
+
+    const finalPassword = generatedPassword.slice(0, length);
+
+    return finalPassword;   
+}
 
 //  Generator Functions
 
